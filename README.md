@@ -1,14 +1,21 @@
-# ror2 balatro mod
-Mod for balatro that adds things from Risk of Rain 2 but balatro'ified.\
-(but right now its just 2 of them)\
+# ror2funnyitems
+Mod for balatro that adds the funny items from Risk of Rain 2 but balatro'ified.\
 Uses [Steammodded](https://github.com/Steamopollys/Steamodded/)
 # Jokers
 
 ### Benthic Bloom
-![image](https://github.com/ao-u/ror2balatromod/assets/114837752/12633b38-e8eb-4f9f-b781-25abed14e0b8)
+![image](https://github.com/ao-u/ror2funnyitems/assets/114837752/944c92cc-95e9-4cf7-89d6-7f8f853e123c)
+
 
 
 ### Egocentrism
-![image](https://github.com/ao-u/ror2balatromod/assets/114837752/e06a7785-1310-47d4-ba4e-04cd1fd0fb2e)
 
+![image](https://github.com/ao-u/ror2funnyitems/assets/114837752/b2cfc1c1-73ff-47b9-b88c-332f775d8ea1)
+
+### Spinel Tonic
+
+![image](https://github.com/ao-u/ror2funnyitems/assets/114837752/59ed8c55-4aeb-47c4-8f6c-51946584ded9)
+
+### (Tonic Affliction)
+![image](https://github.com/ao-u/ror2funnyitems/assets/114837752/1a24f183-ca04-413c-a274-ad8646a77f94)
 
