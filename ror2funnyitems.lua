@@ -8,11 +8,11 @@
 
 
 function SMODS.INIT.ror2funnyitems()
-    local localization = {
+    local j_localization = {
         j_benthicbloom = {
             name = "Benthic Bloom",
             text = {
-                "When {C:attention}Boss Blind{} is selected",
+                "When {C:attention}Boss Blind{} is selected,",
                 "destroy a random {C:attention}joker{}",
                 "and create one of the",
                 "next higher {C:attention}rarity{}"
@@ -22,7 +22,7 @@ function SMODS.INIT.ror2funnyitems()
             name = "Egocentrism",
             text = {
                 "{X:mult,C:white}X1.2{} Mult",
-                "When {C:attention}Blind{} is selected",
+                "When {C:attention}Blind{} is selected,",
                 "{C:green}#1# in #2#{} chance to destroy a",
                 "random {C:attention}card{}, {C:attention}joker{}, or {C:attention}consumable{}",
                 "and create a {C:dark_edition}negative{} {C:attention}Egocentrism{}"
@@ -39,9 +39,18 @@ function SMODS.INIT.ror2funnyitems()
         j_tonicaffliction = {
             name = "Tonic Affliction",
             text = {
-                "When {C:attention}Blind{} is selected",
-                "increase blind chip requirement",
+                "When {C:attention}Blind{} is selected,",
+                "increase blind requirement",
                 "by {X:black,C:white}X1.2{}"
+            }
+        },
+        j_happiestmask = {
+            name = "Happiest Mask",
+            text = {
+                "When a {C:attention}card{} is destroyed,",
+                "{C:green}#1# in #2#{} chance to create a",
+                "{C:dark_edition}negative{} copy of that card",
+                "{C:inactive}(negative cards give +1 hand size while in hand)"
             }
         }
     }
@@ -66,24 +75,99 @@ function SMODS.INIT.ror2funnyitems()
         ),
         j_tonicaffliction = SMODS.Joker:new(
             "Tonic Affliction", "tonicaffliction",
-            { Xmult = 1.2  },
+            { extra = 1.2 },
             { x = 0, y = 0 }, loc_def,
             1, 0, true, true, true, true
+        ),
+        j_happiestmask = SMODS.Joker:new(
+            "Happiest Mask", "happiestmask",
+            { extra = 3 },
+            { x = 0, y = 0 }, loc_def,
+            3, 9, true, true, true, true
         )
     }
     
+    
+
     for k, v in pairs(jokers) do
         v.slug = k
-        v.loc_txt = localization[k]
+        v.loc_txt = j_localization[k]
         v.spritePos = { x = 0, y = 0 }
         v.mod = "ror2funnyitems"
         v:register()
         SMODS.Sprite:new(v.slug, SMODS.findModByID("ror2funnyitems").path, v.slug..".png", 71, 95, "asset_atli"):register()    
     end
-       
+
+    local negativehandsizediff = 0
+    local original_emplace = CardArea.emplace
+    function CardArea:emplace(card, location, stay_flipped)
+        original_emplace(self, card, location, stay_flipped)
+
+        if self == G.hand then
+            --sendDebugMessage(card.config.card.suit.. " card drawen  "..string.char(10)) 
+            if card and card.edition and card.edition.type == 'negative' then
+                G.hand:change_size(1)
+                negativehandsizediff = negativehandsizediff + 1
+            end
+        end
+    end
+    
+    local original_remove_card = CardArea.remove_card
+    function CardArea:remove_card(card, discarded_only)
+        
+        if self == G.hand then
+            --sendDebugMessage(card.config.card.suit.. " card DISCARDED!  "..string.char(10)) 
+            if card and card.edition and card.edition.type == 'negative' then
+                G.hand:change_size(-1)
+                negativehandsizediff = negativehandsizediff - 1
+            end
+        end 
+
+        return original_remove_card(self, card, discarded_only)
+    end
+    
+    
+    local calculate_jokerref = Card.calculate_joker
+    function Card.calculate_joker(self, context)
+        local calc_ref = calculate_jokerref(self, context)
+        if context.setting_blind then
+            
+        end
+
+        return calc_ref
+    end
+
+    local original_new_round = new_round
+    function new_round() 
+        G.hand:change_size(-negativehandsizediff)
+        negativehandsizediff = 0
+        original_new_round()
+
+    end
+
+    SMODS.Jokers.j_happiestmask.calculate = function(self, context)
+
+        if context.remove_playing_cards then
+            for k, v in pairs(context.removed) do
+                if pseudorandom('mask') < G.GAME.probabilities.normal/self.ability.extra then
+                    G.E_MANAGER:add_event(Event({trigger = 'after', delay = 0.4, func = function()
+                        play_sound('timpani')
+                        local card = copy_card(v, nil, nil, nil, nil)
+                        card:set_edition({negative = true}, true) 
+                        card:add_to_deck()
+                        card.playing_card = G.playing_card
+                        G.hand:emplace(card)
+                        return true end }))
+                end
+            end
+        end
+
+        
+    end
+
     SMODS.Jokers.j_tonicaffliction.calculate = function(self, context) 
         if context.setting_blind and not context.blueprint and not self.getting_sliced then
-            G.GAME.blind.chips = G.GAME.blind.chips * self.ability.x_mult
+            G.GAME.blind.chips = G.GAME.blind.chips * self.ability.extra
             G.GAME.blind.chip_text = number_format(G.GAME.blind.chips)
         end
     end
@@ -93,7 +177,7 @@ function SMODS.INIT.ror2funnyitems()
                 G.E_MANAGER:add_event(Event({trigger = 'after', delay = 0.4, func = function()
                     play_sound('timpani')
                     local card = create_card('Joker', G.jokers, nil, nil, nil, nil,'j_tonicaffliction', nil)
-                    card.config.center.eternal_compat = true
+                    --card.config.center.eternal_compat = true
                     card:set_eternal(true)
                     card:set_edition({negative = true}, true) 
                     card.cost = 0
@@ -153,6 +237,7 @@ function SMODS.INIT.ror2funnyitems()
         end
 
     end
+
     SMODS.Jokers.j_benthicbloom.calculate = function(self, context)
         if context.setting_blind and not context.blueprint and context.blind.boss and not self.getting_sliced then
             local deletable_jokers = {}
@@ -206,6 +291,9 @@ function SMODS.INIT.ror2funnyitems()
                 customJoker = true
             elseif self.ability.name == 'Spinel Tonic' then
                 loc_vars = {G.GAME.probabilities.normal, 4}
+                customJoker = true
+            elseif self.ability.name == 'Happiest Mask' then
+                loc_vars = {G.GAME.probabilities.normal, 3}
                 customJoker = true
             end
 
