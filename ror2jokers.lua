@@ -1,13 +1,13 @@
 --- STEAMODDED HEADER
---- MOD_NAME: ror2funnyitems
---- MOD_ID: ror2funnyitems
+--- MOD_NAME: ror2jokers
+--- MOD_ID: ror2jokers
 --- MOD_AUTHOR: [aou]
 --- MOD_DESCRIPTION: Adds the funny items from Risk of Rain 2
 ----------------------------------------------
 ------------MOD CODE -------------------------
 
 
-function SMODS.INIT.ror2funnyitems()
+function SMODS.INIT.ror2jokers()
     local j_localization = {
         j_benthicbloom = {
             name = "Benthic Bloom",
@@ -52,6 +52,14 @@ function SMODS.INIT.ror2funnyitems()
                 "{C:dark_edition}negative{} copy of that card",
                 "{C:inactive}(negative cards give +1 hand size while in hand)"
             }
+        },
+        j_symbioticscorpion = {
+            name = "Symbiotic Scorpion",
+            text = {
+                "Reduce {C:attention}Blind{} by {X:black,C:white}15%{},",
+                "if played hand is one of your",
+                "least played {C:attention}poker hands{}",
+            }
         }
     }
     local jokers = {
@@ -81,72 +89,79 @@ function SMODS.INIT.ror2funnyitems()
         ),
         j_happiestmask = SMODS.Joker:new(
             "Happiest Mask", "happiestmask",
-            { extra = 3 },
+            { extra = 2 },
             { x = 0, y = 0 }, loc_def,
-            3, 9, true, true, true, true
+            2, 7, true, true, true, true
+        ),
+        j_symbioticscorpion = SMODS.Joker:new(
+            "Symbiotic Scorpion", "symbioticscorpion",
+            { extra = .85 },
+            { x = 0, y = 0 }, loc_def,
+            2, 5, true, true, true, true
         )
     }
     
-    
-
     for k, v in pairs(jokers) do
         v.slug = k
         v.loc_txt = j_localization[k]
         v.spritePos = { x = 0, y = 0 }
-        v.mod = "ror2funnyitems"
+        v.mod = "ror2jokers"
         v:register()
-        SMODS.Sprite:new(v.slug, SMODS.findModByID("ror2funnyitems").path, v.slug..".png", 71, 95, "asset_atli"):register()    
+        SMODS.Sprite:new(v.slug, SMODS.findModByID("ror2jokers").path, v.slug..".png", 71, 95, "asset_atli"):register()    
     end
 
+    SMODS.Jokers.j_symbioticscorpion.calculate = function(self, context) 
+        if context.cardarea == G.jokers and context.before then
+            local least = true
+            local play_less_than = (G.GAME.hands[context.scoring_name].played or 0) - 1
+            for k, v in pairs(G.GAME.hands) do
+                if k ~= context.scoring_name and v.played < play_less_than and v.visible then
+                    sendDebugMessage(v.played.. " that many times is less than current "..play_less_than.." "..string.char(10))
+                    least = false
+                end
+            end
+            if least then
+                G.GAME.blind.chips = G.GAME.blind.chips * self.ability.extra
+                G.GAME.blind.chip_text = number_format(G.GAME.blind.chips)
+                return {
+                    card = self,
+                    message = localize('Reduced!')
+                }
+            end
+        end
+    end
+
+    --negative card thingy
     local negativehandsizediff = 0
     local original_emplace = CardArea.emplace
     function CardArea:emplace(card, location, stay_flipped)
         original_emplace(self, card, location, stay_flipped)
-
         if self == G.hand then
-            --sendDebugMessage(card.config.card.suit.. " card drawen  "..string.char(10)) 
             if card and card.edition and card.edition.type == 'negative' then
                 G.hand:change_size(1)
                 negativehandsizediff = negativehandsizediff + 1
             end
         end
     end
-    
     local original_remove_card = CardArea.remove_card
     function CardArea:remove_card(card, discarded_only)
-        
         if self == G.hand then
-            --sendDebugMessage(card.config.card.suit.. " card DISCARDED!  "..string.char(10)) 
             if card and card.edition and card.edition.type == 'negative' then
                 G.hand:change_size(-1)
                 negativehandsizediff = negativehandsizediff - 1
             end
         end 
-
         return original_remove_card(self, card, discarded_only)
     end
-    
-    
-    local calculate_jokerref = Card.calculate_joker
-    function Card.calculate_joker(self, context)
-        local calc_ref = calculate_jokerref(self, context)
-        if context.setting_blind then
-            
-        end
-
-        return calc_ref
-    end
-
     local original_new_round = new_round
     function new_round() 
         G.hand:change_size(-negativehandsizediff)
         negativehandsizediff = 0
         original_new_round()
-
     end
+    --
 
     SMODS.Jokers.j_happiestmask.calculate = function(self, context)
-
         if context.remove_playing_cards then
             for k, v in pairs(context.removed) do
                 if pseudorandom('mask') < G.GAME.probabilities.normal/self.ability.extra then
@@ -161,8 +176,6 @@ function SMODS.INIT.ror2funnyitems()
                 end
             end
         end
-
-        
     end
 
     SMODS.Jokers.j_tonicaffliction.calculate = function(self, context) 
@@ -171,8 +184,9 @@ function SMODS.INIT.ror2funnyitems()
             G.GAME.blind.chip_text = number_format(G.GAME.blind.chips)
         end
     end
+
     SMODS.Jokers.j_spineltonic.calculate = function(self, context) 
-        if SMODS.end_calculate_context(context) then
+        if context.after then
             if pseudorandom('tonic') < G.GAME.probabilities.normal/self.ability.extra then
                 G.E_MANAGER:add_event(Event({trigger = 'after', delay = 0.4, func = function()
                     play_sound('timpani')
@@ -186,12 +200,15 @@ function SMODS.INIT.ror2funnyitems()
                     G.jokers:emplace(card)
                     return true end }))
             end
+        end
+        if SMODS.end_calculate_context(context) then
             return {
                 message = localize{type='variable',key='a_xmult',vars={self.ability.x_mult}},
                 Xmult_mod = self.ability.x_mult,
             }
         end
     end
+
     SMODS.Jokers.j_egocentrism.calculate = function(self, context) 
         if context.setting_blind and not context.blueprint and not self.getting_sliced then
             if pseudorandom('ego') < G.GAME.probabilities.normal/self.ability.extra then
@@ -206,7 +223,6 @@ function SMODS.INIT.ror2funnyitems()
                     deletables[#deletables+1] = G.playing_cards[i] 
                 end
                 local chosen = #deletables > 0 and pseudorandom_element(deletables, pseudoseed('ego')) or nil
-
                 if chosen and not self.getting_sliced and not chosen.ability.eternal and not chosen.getting_sliced then 
                     local sliced_card = chosen
                     sliced_card.getting_sliced = true
@@ -215,7 +231,6 @@ function SMODS.INIT.ror2funnyitems()
                         sliced_card:start_dissolve({HEX("ff00ff")}, nil, 1.6)
                         play_sound('slice1', 0.96+math.random()*0.08)
                     return true end }))  
-
                     G.E_MANAGER:add_event(Event({trigger = 'after', delay = 0.4, func = function()
                         play_sound('timpani')
                         local card = copy_card(self, nil, nil, nil, nil)
@@ -257,7 +272,6 @@ function SMODS.INIT.ror2funnyitems()
                     play_sound('slice1', 0.96+math.random()*0.08)
                 return true end }))     
 
-                --i am going to hurt someone
                 local rarity = chosen_joker.config.center.rarity == 3 and 4 or chosen_joker.config.center.rarity - .25
                 
                 G.E_MANAGER:add_event(Event({trigger = 'after', delay = 0.4, func = function()
@@ -293,7 +307,7 @@ function SMODS.INIT.ror2funnyitems()
                 loc_vars = {G.GAME.probabilities.normal, 4}
                 customJoker = true
             elseif self.ability.name == 'Happiest Mask' then
-                loc_vars = {G.GAME.probabilities.normal, 3}
+                loc_vars = {G.GAME.probabilities.normal, 2}
                 customJoker = true
             end
 

@@ -128,57 +128,6 @@ function SMODS.INIT.ror2spectral()
         end
         return false
     end
-      
-
-
-    local Backapply_to_runRef = Back.apply_to_run
-    function Back.apply_to_run(arg_56_0)
-        Backapply_to_runRef(arg_56_0)
-        if arg_56_0.effect.config.polyglass then
-            G.E_MANAGER:add_event(Event({
-                func = (function()
-                    local card = create_card('Spectral', G.consumeables, nil, nil, nil, nil, 'c_mountainshrine', 'deck')
-                    card:add_to_deck()
-                    G.consumeables:emplace(card)
-                    local card = create_card('Spectral', G.consumeables, nil, nil, nil, nil, 'c_ordershrine', 'deck')
-                    card:add_to_deck()
-                    G.consumeables:emplace(card)
-                    for i = 1, 20 do
-                        local card = create_card('Tarot', G.consumeables, nil, nil, nil, nil, 'c_hermit', 'deck')
-                        card:set_edition({negative = true}, true) 
-                        card:add_to_deck()
-                        G.consumeables:emplace(card)
-                    end  
-                    for i = 1, 4 do
-                        local card = create_card('Joker', G.jokers, false, math.random(), nil, nil, nil, 'wa')
-                        if i==1 then  card:set_eternal(true) end
-                        card:add_to_deck()
-                        G.jokers:emplace(card)
-                    end  
-
-                    local card = create_card('Joker', G.jokers, false, math.random(), nil, nil, 'j_spineltonic', 'tonic')
-                    if i==1 then  card:set_eternal(true) end
-                    card:add_to_deck()
-                    G.jokers:emplace(card)
-
-                    play_sound('generic1', 0.9 + math.random()*0.1, 0.8)
-                    play_sound('holo1', 1.2 + math.random()*0.1, 0.4)
-                    return true
-                end)
-              }))
-        end
-    end
-
-    local loc_def = {
-        ["name"]="debug deck",
-        ["text"]={
-            [1]="Start with a Deck",
-            [2]="of athing"
-        },
-    }
-
-    local absolute = SMODS.Deck:new("debug deck", "absolute", {polyglass = true}, {x = 0, y = 3}, loc_def)
-    absolute:register()
 end
 
 ----------------------------------------------
