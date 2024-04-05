@@ -2,6 +2,7 @@
 Mod for balatro that adds the funny items from Risk of Rain 2 but balatro'ified.\
 (7 jokers, 2 spectrals, and more eventually!)\
 Uses [Steammodded](https://github.com/Steamopollys/Steamodded/)
+
 # Jokers
 
 ### Benthic Bloom
@@ -24,3 +25,11 @@ Uses [Steammodded](https://github.com/Steamopollys/Steamodded/)
 
 ### Gesture of the Drowned
 ![Screenshot 2024-04-05 101509](https://github.com/ao-u/ror2funnyitems/assets/114837752/0213fe96-f556-4fde-bb7a-9a4598952413)
+
+# Spectrals
+
+### Shrine of Order
+![Screenshot 2024-04-05 101322](https://github.com/ao-u/ror2funnyitems/assets/114837752/630917dd-3496-4d75-85c2-dd4927818365)
+
+### Shrine of the Mountain
+![Screenshot 2024-04-05 101615](https://github.com/ao-u/ror2funnyitems/assets/114837752/aaa6e846-a07f-45a3-a2a7-4a268f92db3c)
