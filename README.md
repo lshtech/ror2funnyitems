@@ -1,6 +1,6 @@
 # ror2funnyitems
 Mod for balatro that adds the funny items from Risk of Rain 2 but balatro'ified.\
-(7 jokers, 2 spectrals, and more eventually!)
+(7 jokers, 2 spectrals, and more eventually!)\
 Uses [Steammodded](https://github.com/Steamopollys/Steamodded/)
 # Jokers
 
