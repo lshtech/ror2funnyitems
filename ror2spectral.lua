@@ -2,7 +2,7 @@
 --- MOD_NAME: ror2spectral
 --- MOD_ID: ror2spectral
 --- MOD_AUTHOR: [aou]
---- MOD_DESCRIPTION: Adds the funny items from Risk of Rain 2
+--- MOD_DESCRIPTION: spectrals from Risk of Rain 2
 ----------------------------------------------
 ------------MOD CODE -------------------------
 
@@ -64,7 +64,7 @@ function SMODS.INIT.ror2spectral()
                 return true end }))
             delay(0.6)
         else
-            sendDebugMessage(tostring(G.STATE).."  this is the STATE! "..string.char(10))
+            --sendDebugMessage(tostring(G.STATE).."  this is the STATE! "..string.char(10))
             local card = create_card('Spectral', G.consumeables, nil, nil, nil, nil, 'c_mountainshrine', 'deck')
             card:add_to_deck()
             G.consumeables:emplace(card)
@@ -98,7 +98,6 @@ function SMODS.INIT.ror2spectral()
                 if G.jokers.cards[j].config.center.rarity == rarities[i].config.center.rarity then
                     local eternaljoker = nil
                     if G.jokers.cards[j].ability.eternal then eternaljoker = G.jokers.cards[j] end
-                    --sendDebugMessage(rarities[i].ability.name .." is not "..G.jokers.cards[j].ability.name..string.char(10))
                     local sliced_card = G.jokers.cards[j]
                     sliced_card.getting_sliced = true
                     G.GAME.joker_buffer = G.GAME.joker_buffer - 1
@@ -122,9 +121,7 @@ function SMODS.INIT.ror2spectral()
 
     function table.contains(table, element)
         for _, value in pairs(table) do
-            if value == element then
-                return true
-            end
+            if value == element then return true end
         end
         return false
     end

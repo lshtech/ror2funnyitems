@@ -2,7 +2,7 @@
 --- MOD_NAME: ror2jokers
 --- MOD_ID: ror2jokers
 --- MOD_AUTHOR: [aou]
---- MOD_DESCRIPTION: Adds the funny items from Risk of Rain 2
+--- MOD_DESCRIPTION: jokers from Risk of Rain 2
 ----------------------------------------------
 ------------MOD CODE -------------------------
 
@@ -21,7 +21,7 @@ function SMODS.INIT.ror2jokers()
         j_egocentrism = {
             name = "Egocentrism",
             text = {
-                "{X:mult,C:white}X1.2{} Mult",
+                "{X:mult,C:white}X1.25{} Mult",
                 "When {C:attention}Blind{} is selected,",
                 "{C:green}#1# in #2#{} chance to destroy a",
                 "random {C:attention}card{}, {C:attention}joker{}, or {C:attention}consumable{}",
@@ -31,7 +31,7 @@ function SMODS.INIT.ror2jokers()
         j_spineltonic = {
             name = "Spinel Tonic",
             text = {
-                "{X:mult,C:white}X5{} Mult",
+                "{X:mult,C:white}X4{} Mult",
                 "{C:green}#1# in #2#{} chance to create a",
                 "{C:dark_edition}Tonic Affliction{} per hand played"
             }
@@ -50,15 +50,24 @@ function SMODS.INIT.ror2jokers()
                 "When a {C:attention}card{} is destroyed,",
                 "{C:green}#1# in #2#{} chance to create a",
                 "{C:dark_edition}negative{} copy of that card",
-                "{C:inactive}(negative cards give +1 hand size while in hand)"
+                "{C:inactive}(negative cards give +1 hand size",
+                "{C:inactive}while in hand)"
             }
         },
         j_symbioticscorpion = {
             name = "Symbiotic Scorpion",
             text = {
-                "Reduce {C:attention}Blind{} by {X:black,C:white}15%{},",
-                "if played hand is one of your",
-                "least played {C:attention}poker hands{}",
+                "Reduce {C:attention}Blind{} by {X:black,C:white}25%{}",
+                "if played hand is your",
+                "least played {C:attention}poker hand{}",
+            }
+        },
+        j_gesturedrowned = {
+            name = "Gesture of the Drowned",
+            text = {
+                "{X:mult,C:white}X3{} Mult",
+                "Forces 1 {C:attention}card{} to always",
+                "be selected"
             }
         }
     }
@@ -71,13 +80,13 @@ function SMODS.INIT.ror2jokers()
         ),
         j_egocentrism = SMODS.Joker:new(
             "Egocentrism", "egocentrism",
-            { Xmult = 1.2, extra = 4 },
+            { Xmult = 1.25, extra = 3 },
             { x = 0, y = 0 }, loc_def,
             3, 6, true, true, true, true
         ),
         j_spineltonic = SMODS.Joker:new(
             "Spinel Tonic", "spineltonic",
-            { Xmult = 5, extra = 4 },
+            { Xmult = 4, extra = 4 },
             { x = 0, y = 0 }, loc_def,
             3, 9, true, true, true, true
         ),
@@ -95,10 +104,17 @@ function SMODS.INIT.ror2jokers()
         ),
         j_symbioticscorpion = SMODS.Joker:new(
             "Symbiotic Scorpion", "symbioticscorpion",
-            { extra = .85 },
+            { extra = .75 },
+            { x = 0, y = 0 }, loc_def,
+            2, 5, true, true, true, true
+        ),
+        j_gesturedrowned = SMODS.Joker:new(
+            "Gesture of the Drowned", "gesturedrowned",
+            { Xmult = 3 },
             { x = 0, y = 0 }, loc_def,
             2, 5, true, true, true, true
         )
+
     }
     
     for k, v in pairs(jokers) do
@@ -106,9 +122,42 @@ function SMODS.INIT.ror2jokers()
         v.loc_txt = j_localization[k]
         v.spritePos = { x = 0, y = 0 }
         v.mod = "ror2jokers"
+        if v.slug == 'j_tonicaffliction' then
+            v.yes_pool_flag = 'never'
+        end
         v:register()
         SMODS.Sprite:new(v.slug, SMODS.findModByID("ror2jokers").path, v.slug..".png", 71, 95, "asset_atli"):register()    
     end
+    
+    SMODS.Jokers.j_gesturedrowned.calculate = function(self, context) 
+        if context.emplace then
+            local any_forced = nil
+            for k, v in ipairs(G.hand.cards) do
+                if v.ability.forced_selection then
+                    any_forced = true
+                end
+            end
+            if not any_forced and #G.hand.cards > 0 then 
+                G.hand:unhighlight_all()
+                local forced_card = pseudorandom_element(G.hand.cards, pseudoseed('gesture'))
+                forced_card.ability.forced_selection = true
+                G.hand:add_to_highlighted(forced_card)
+            end
+        end
+        if context.selling_self then
+            for k, v in ipairs(G.playing_cards) do
+                v.ability.forced_selection = nil
+            end
+        end
+        if SMODS.end_calculate_context(context) then
+            return {
+                message = localize{type='variable',key='a_xmult',vars={self.ability.x_mult}},
+                Xmult_mod = self.ability.x_mult,
+            }
+        end
+
+    end
+   
 
     SMODS.Jokers.j_symbioticscorpion.calculate = function(self, context) 
         if context.cardarea == G.jokers and context.before then
@@ -116,7 +165,6 @@ function SMODS.INIT.ror2jokers()
             local play_less_than = (G.GAME.hands[context.scoring_name].played or 0) - 1
             for k, v in pairs(G.GAME.hands) do
                 if k ~= context.scoring_name and v.played < play_less_than and v.visible then
-                    sendDebugMessage(v.played.. " that many times is less than current "..play_less_than.." "..string.char(10))
                     least = false
                 end
             end
@@ -125,21 +173,25 @@ function SMODS.INIT.ror2jokers()
                 G.GAME.blind.chip_text = number_format(G.GAME.blind.chips)
                 return {
                     card = self,
-                    message = localize('Reduced!')
+                    message = "Reduced!",
+                    colour = G.C.BLACK
                 }
             end
         end
     end
-
+    
     --negative card thingy
     local negativehandsizediff = 0
     local original_emplace = CardArea.emplace
     function CardArea:emplace(card, location, stay_flipped)
         original_emplace(self, card, location, stay_flipped)
-        if self == G.hand then
+        if G.jokers ~= nil and self == G.hand then
             if card and card.edition and card.edition.type == 'negative' then
                 G.hand:change_size(1)
                 negativehandsizediff = negativehandsizediff + 1
+            end
+            for _, v in pairs(G.jokers.cards) do
+                v:calculate_joker({ emplace = true, emplaced_card = card })
             end
         end
     end
@@ -184,7 +236,7 @@ function SMODS.INIT.ror2jokers()
             G.GAME.blind.chip_text = number_format(G.GAME.blind.chips)
         end
     end
-
+    
     SMODS.Jokers.j_spineltonic.calculate = function(self, context) 
         if context.after then
             if pseudorandom('tonic') < G.GAME.probabilities.normal/self.ability.extra then
@@ -301,7 +353,7 @@ function SMODS.INIT.ror2jokers()
             local customJoker = false
 
             if self.ability.name == 'Egocentrism' then
-                loc_vars = {G.GAME.probabilities.normal, 4}
+                loc_vars = {G.GAME.probabilities.normal, 3}
                 customJoker = true
             elseif self.ability.name == 'Spinel Tonic' then
                 loc_vars = {G.GAME.probabilities.normal, 4}
