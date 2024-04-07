@@ -11,9 +11,8 @@ function SMODS.INIT.ror2deck()
     local happiest_def = {
         ["name"]="Happiest Deck",
         ["text"]={
-            [1]="Start with an",
-            [2]="{C:attention}Eternal Happiest Mask{}",
-            [3]="and an {C:attention}Immolate{}"
+            [1]="Start with {C:attention}Happiest Mask{}",
+            [2]="and an {C:attention}Immolate{}"
         },
     }
     local order_def = {
@@ -26,8 +25,7 @@ function SMODS.INIT.ror2deck()
     local bloom_def = {
         ["name"]="Bloom Deck",
         ["text"]={
-            [1]="Start with an",
-            [2]="{C:attention}Eternal Benthic Bloom{}"
+            [1]="Start with {C:attention}Benthic Bloom{}"
         },
     }
     local happiest = SMODS.Deck:new("Happiest Deck", "happiest", {happiest = true}, {x = 5, y = 2}, happiest_def)
@@ -48,7 +46,7 @@ function SMODS.INIT.ror2deck()
                 G.consumeables:emplace(card)
                 
                 local card = create_card('Joker', G.jokers, nil, nil, nil, nil, 'j_happiestmask', 'ww')
-                card:set_eternal(true)
+                --card:set_eternal(true)
                 card:add_to_deck()
                 G.jokers:emplace(card) 
             return true end)}))
@@ -69,7 +67,7 @@ function SMODS.INIT.ror2deck()
             G.E_MANAGER:add_event(Event({
                 func = (function()
                 local card = create_card('Joker', G.jokers, nil, nil, nil, nil, 'j_benthicbloom', 'ww')
-                card:set_eternal(true)
+               -- card:set_eternal(true)
                 card:add_to_deck()
                 G.jokers:emplace(card) 
             return true end)}))

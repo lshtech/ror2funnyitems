@@ -185,10 +185,12 @@ function SMODS.INIT.ror2jokers()
     local original_emplace = CardArea.emplace
     function CardArea:emplace(card, location, stay_flipped)
         original_emplace(self, card, location, stay_flipped)
-        if G.jokers ~= nil and self == G.hand then
+        if G.jokers ~= nil and self == G.hand and (G.STATE == 1 or G.STATE == 6 or G.STATE == 3)   then
             if card and card.edition and card.edition.type == 'negative' then
+                sendDebugMessage(tostring(G.STATE).."  this is the STATE! "..string.char(10))
                 G.hand:change_size(1)
                 negativehandsizediff = negativehandsizediff + 1
+                sendDebugMessage("+hand size diff "..negativehandsizediff..""..string.char(10))
             end
             for _, v in pairs(G.jokers.cards) do
                 v:calculate_joker({ emplace = true, emplaced_card = card })
@@ -197,19 +199,22 @@ function SMODS.INIT.ror2jokers()
     end
     local original_remove_card = CardArea.remove_card
     function CardArea:remove_card(card, discarded_only)
-        if self == G.hand then
+        if self == G.hand and (G.STATE == 3 or G.STATE == 2) then
             if card and card.edition and card.edition.type == 'negative' then
+                sendDebugMessage(tostring(G.STATE).."  this is the STATE! "..string.char(10))
                 G.hand:change_size(-1)
                 negativehandsizediff = negativehandsizediff - 1
+                sendDebugMessage("-hand size diff "..negativehandsizediff..""..string.char(10))
             end
         end 
         return original_remove_card(self, card, discarded_only)
     end
-    local original_new_round = new_round
-    function new_round() 
+    local original_defeat = Blind.defeat
+    function Blind:defeat(silent)
+        original_defeat(self, silent)
+        sendDebugMessage("hand size changed by "..-negativehandsizediff..""..string.char(10))
         G.hand:change_size(-negativehandsizediff)
         negativehandsizediff = 0
-        original_new_round()
     end
     --
 
