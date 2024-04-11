@@ -27,28 +27,20 @@ function SMODS.INIT.ror2spectral()
         }
     }
     local spectrals = {
-        c_mountainshrine = SMODS.Spectral:new(
-            "Shrine of the Mountain", "mountainshrine",
-            { },
-            { x = 0, y = 0}, loc_def,
-            3, 9, true, true, true, true
-        ),
-        c_ordershrine = SMODS.Spectral:new(
-            "Shrine of Order", "ordershrine",
-            { },
-            { x = 0, y = 0}, loc_def,
-            3, 9, true, true, true, true
-        )
+        {
+            name = "Shrine of the Mountain", slug = "mountainshrine",
+            config = {},
+        },
+        {
+            name = "Shrine of Order", slug = "ordershrine",
+            config = {},
+        }
     }
     
     
     for k, v in pairs(spectrals) do
-        v.slug = k
-        v.loc_txt = c_localization[k]
-        v.spritePos = { x = 0, y = 0 }
-        v.mod = "ror2spectral"
-        v:register()
-        SMODS.Sprite:new(v.slug, SMODS.findModByID("ror2spectral").path, v.slug..".png", 71, 95, "asset_atli"):register()    
+        SMODS.Spectral:new(v.name, v.slug, v.config, {x = 0, y = 0}, c_localization["c_"..v.slug], 4, true, true):register()
+        SMODS.Sprite:new("c_"..v.slug, SMODS.findModByID("ror2spectral").path, "c_"..v.slug..".png", 71, 95, "asset_atli"):register()    
     end
 
 

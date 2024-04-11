@@ -72,62 +72,56 @@ function SMODS.INIT.ror2jokers()
         }
     }
     local jokers = {
-        j_benthicbloom = SMODS.Joker:new(
-            "Benthic Bloom", "benthicbloom",
-            { },
-            { x = 0, y = 0}, loc_def,
-            3, 9, true, true, true, true
-        ),
-        j_egocentrism = SMODS.Joker:new(
-            "Egocentrism", "egocentrism",
-            { Xmult = 1.25, extra = 3 },
-            { x = 0, y = 0 }, loc_def,
-            3, 6, true, true, true, true
-        ),
-        j_spineltonic = SMODS.Joker:new(
-            "Spinel Tonic", "spineltonic",
-            { Xmult = 4, extra = 4 },
-            { x = 0, y = 0 }, loc_def,
-            3, 9, true, true, true, true
-        ),
-        j_tonicaffliction = SMODS.Joker:new(
-            "Tonic Affliction", "tonicaffliction",
-            { extra = 1.2 },
-            { x = 0, y = 0 }, loc_def,
-            1, 0, true, true, true, true
-        ),
-        j_happiestmask = SMODS.Joker:new(
-            "Happiest Mask", "happiestmask",
-            { extra = 2 },
-            { x = 0, y = 0 }, loc_def,
-            2, 7, true, true, true, true
-        ),
-        j_symbioticscorpion = SMODS.Joker:new(
-            "Symbiotic Scorpion", "symbioticscorpion",
-            { extra = .75 },
-            { x = 0, y = 0 }, loc_def,
-            2, 5, true, true, true, true
-        ),
-        j_gesturedrowned = SMODS.Joker:new(
-            "Gesture of the Drowned", "gesturedrowned",
-            { Xmult = 3 },
-            { x = 0, y = 0 }, loc_def,
-            2, 5, true, true, true, true
-        )
-
+        {
+            name = "Benthic Bloom", slug = "benthicbloom",
+            config = {}, rarity = 3, cost = 9, 
+            blueprint_compat = true, 
+            eternal_compat = true
+        },
+        {
+            name = "Egocentrism", slug = "egocentrism",
+            config = { Xmult = 1.25, extra = 3}, rarity = 3, cost = 6, 
+            blueprint_compat = true, 
+            eternal_compat = true
+        },
+        {
+            name = "Spinel Tonic", slug = "spineltonic",
+            config = { Xmult = 4, extra = 4}, rarity = 3, cost = 9, 
+            blueprint_compat = true, 
+            eternal_compat = true
+        },
+        {
+            name = "Tonic Affliction", slug = "tonicaffliction",
+            config = { extra = 1.2 }, rarity = 1, cost = 0, 
+            blueprint_compat = true, 
+            eternal_compat = true
+        },
+        {
+            name = "Happiest Mask", slug = "happiestmask",
+            config = { extra = 2 }, rarity = 2, cost = 7, 
+            blueprint_compat = true, 
+            eternal_compat = true
+        },
+        {
+            name = "Symbiotic Scorpion", slug = "symbioticscorpion",
+            config = { extra = .75 }, rarity = 2, cost = 5, 
+            blueprint_compat = true, 
+            eternal_compat = true
+        },
+        {
+            name = "Gesture of the Drowned", slug = "gesturedrowned",
+            config = { Xmult = 3 }, rarity = 2, cost = 5, 
+            blueprint_compat = true, 
+            eternal_compat = true
+        }
     }
     
     for k, v in pairs(jokers) do
-        v.slug = k
-        v.loc_txt = j_localization[k]
-        v.spritePos = { x = 0, y = 0 }
-        v.mod = "ror2jokers"
-        if v.slug == 'j_tonicaffliction' then
-            v.yes_pool_flag = 'never'
-        end
-        v:register()
-        SMODS.Sprite:new(v.slug, SMODS.findModByID("ror2jokers").path, v.slug..".png", 71, 95, "asset_atli"):register()    
+        SMODS.Joker:new(v.name, v.slug, v.config, {x = 0, y = 0}, j_localization["j_"..v.slug], v.rarity, v.cost, true, true, v.blueprint_compat, v.eternal_compat):register()
+        SMODS.Sprite:new("j_"..v.slug, SMODS.findModByID("ror2jokers").path, "j_"..v.slug..".png", 71, 95, "asset_atli"):register()    
     end
+
+    
     
     SMODS.Jokers.j_gesturedrowned.calculate = function(self, context) 
         if context.emplace then
@@ -341,72 +335,25 @@ function SMODS.INIT.ror2jokers()
         end
     end
 
-
-    -- UI thingy / Copied from LushMod  
-    local generate_UIBox_ability_tableref = Card.generate_UIBox_ability_table
-    function Card.generate_UIBox_ability_table(self)
-        local card_type, hide_desc = self.ability.set or "None", nil
-        local loc_vars = nil
-        local main_start, main_end = nil, nil
-        local no_badge = nil
-
-        if self.config.center.unlocked == false and not self.bypass_lock then    -- For everyting that is locked
-        elseif card_type == 'Undiscovered' and not self.bypass_discovery_ui then -- Any Joker or tarot/planet/voucher that is not yet discovered
-        elseif self.debuff then
-        elseif card_type == 'Default' or card_type == 'Enhanced' then
-        elseif self.ability.set == 'Joker' then
-            local customJoker = false
-
-            if self.ability.name == 'Egocentrism' then
-                loc_vars = {G.GAME.probabilities.normal, 3}
-                customJoker = true
-            elseif self.ability.name == 'Spinel Tonic' then
-                loc_vars = {G.GAME.probabilities.normal, 4}
-                customJoker = true
-            elseif self.ability.name == 'Happiest Mask' then
-                loc_vars = {G.GAME.probabilities.normal, 2}
-                customJoker = true
-            end
-
-
-            if customJoker then
-                local badges = {}
-                if (card_type ~= 'Locked' and card_type ~= 'Undiscovered' and card_type ~= 'Default') or self.debuff then
-                    badges.card_type = card_type
-                end
-                if self.ability.set == 'Joker' and self.bypass_discovery_ui and (not no_badge) then
-                    badges.force_rarity = true
-                end
-                if self.edition then
-                    if self.edition.type == 'negative' and self.ability.consumeable then
-                        badges[#badges + 1] = 'negative_consumable'
-                    else
-                        badges[#badges + 1] = (self.edition.type == 'holo' and 'holographic' or self.edition.type)
-                    end
-                end
-                if self.seal then
-                    badges[#badges + 1] = string.lower(self.seal) .. '_seal'
-                end
-                if self.ability.eternal then
-                    badges[#badges + 1] = 'eternal'
-                end
-                if self.pinned then
-                    badges[#badges + 1] = 'pinned_left'
-                end
-
-                if self.sticker then
-                    loc_vars = loc_vars or {};
-                    loc_vars.sticker = self.sticker
-                end
-
-                local center = self.config.center
-                return generate_card_ui(center, nil, loc_vars, card_type, badges, hide_desc, main_start, main_end)
-            end
-        end
-        return generate_UIBox_ability_tableref(self)
+    SMODS.Jokers.j_egocentrism.loc_def = function(self)
+        return { G.GAME.probabilities.normal, 3 }
     end
-
+    SMODS.Jokers.j_spineltonic.loc_def = function(self)
+        return { G.GAME.probabilities.normal, 4 }
+    end
+    SMODS.Jokers.j_happiestmask.loc_def = function(self)
+        return { G.GAME.probabilities.normal, 2 }
+    end
     
+
+    --remove tonic affliction from pools. thanks myst!
+    local original_inject_jokers = SMODS.injectJokers
+    function SMODS.injectJokers() 
+        original_inject_jokers()
+        if G.P_CENTERS['j_tonicaffliction'] then
+            G.P_CENTERS['j_tonicaffliction'].yes_pool_flag = "never"
+        end
+    end
 end
 
 ----------------------------------------------
