@@ -187,7 +187,9 @@ function SMODS.INIT.ror2jokers()
                 sendDebugMessage("+hand size diff "..negativehandsizediff..""..string.char(10))
             end
             for _, v in pairs(G.jokers.cards) do
-                v:calculate_joker({ emplace = true, emplaced_card = card })
+                if v.ability.name == "Gesture of the Drowned" then
+                    v:calculate_joker({ emplace = true, emplaced_card = card })
+                end
             end
         end
     end
