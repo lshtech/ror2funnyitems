@@ -18,16 +18,16 @@ function SMODS.INIT.ror2jokers()
                 "next higher {C:attention}rarity{}"
             }
         },
-        j_egocentrism = {
-            name = "Egocentrism",
-            text = {
-                "{X:mult,C:white}X1.25{} Mult",
-                "When {C:attention}Blind{} is selected,",
-                "{C:green}#1# in #2#{} chance to destroy a",
-                "random {C:attention}card{}, {C:attention}joker{}, or {C:attention}consumable{}",
-                "and create a {C:dark_edition}negative{} {C:attention}Egocentrism{}"
-            }
-        },
+        -- j_egocentrism2 = {
+        --     name = "Egocentrism",
+        --     text = {
+        --         "{X:mult,C:white}X1.25{} Mult",
+        --         "When {C:attention}Blind{} is selected,",
+        --         "{C:green}#1# in #2#{} chance to destroy a",
+        --         "random {C:attention}card{}, {C:attention}joker{}, or {C:attention}consumable{}",
+        --         "and create a {C:dark_edition}negative{} {C:attention}Egocentrism{}"
+        --     }
+        -- },
         j_spineltonic = {
             name = "Spinel Tonic",
             text = {
@@ -78,12 +78,12 @@ function SMODS.INIT.ror2jokers()
             blueprint_compat = true, 
             eternal_compat = true
         },
-        {
-            name = "Egocentrism", slug = "egocentrism",
-            config = { Xmult = 1.25, extra = 3}, rarity = 3, cost = 6, 
-            blueprint_compat = true, 
-            eternal_compat = true
-        },
+        -- {
+        --     name = "Egocentrism", slug = "egocentrism2",
+        --     config = { Xmult = 1.25, extra = 3}, rarity = 3, cost = 6, 
+        --     blueprint_compat = true, 
+        --     eternal_compat = true
+        -- },
         {
             name = "Spinel Tonic", slug = "spineltonic",
             config = { Xmult = 4, extra = 4}, rarity = 3, cost = 9, 
